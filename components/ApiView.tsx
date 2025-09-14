@@ -20,17 +20,24 @@ const CodeBlock: React.FC<{ code: string }> = ({ code }) => {
       <pre className="bg-supabase-dark p-4 rounded-md text-sm text-gray-300 overflow-x-auto">
         <code>{code}</code>
       </pre>
-      <button
-        onClick={handleCopy}
-        className="absolute top-2 right-2 p-2 bg-supabase-dark-3 rounded-md hover:bg-supabase-dark-2 transition-colors"
-        aria-label="Copy code"
-      >
-        {isCopied ? (
-          <CheckIcon className="h-5 w-5 text-supabase-green" />
-        ) : (
-          <CopyIcon className="h-5 w-5 text-gray-400" />
+      <div className="absolute top-2 right-2 flex items-center space-x-2">
+        {isCopied && (
+          <span className="text-sm text-supabase-green">
+            Copied!
+          </span>
         )}
-      </button>
+        <button
+          onClick={handleCopy}
+          className="p-2 bg-supabase-dark-3 rounded-md hover:bg-supabase-dark-2 transition-colors"
+          aria-label="Copy code"
+        >
+          {isCopied ? (
+            <CheckIcon className="h-5 w-5 text-supabase-green" />
+          ) : (
+            <CopyIcon className="h-5 w-5 text-gray-400" />
+          )}
+        </button>
+      </div>
     </div>
   );
 };
