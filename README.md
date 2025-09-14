@@ -36,6 +36,34 @@ All API requests must include an `Authorization` header with the JWT provided by
 
 ---
 
+### Filtering Records
+
+You can filter `GET`, `PUT`, and `DELETE` requests by adding query parameters to the URL. This API uses Supabase's PostgREST filtering syntax. The format is `column=operator.value`.
+
+Here are some common operators and examples:
+
+| Operator | Description | Example |
+| :--- | :--- | :--- |
+| `eq` | Equals | `?status=eq.active` |
+| `neq` | Not equal | `?status=neq.inactive` |
+| `gt` | Greater than | `?price=gt.100` |
+| `lt` | Less than | `?priority=lt.3` |
+| `in` | One of a list of values | `?country=in.(USA,Canada)`|
+
+**Example (cURL - Get all users from Canada or USA):**
+```bash
+curl "https://<your-deployment-url>/api/v1/data/users?country=in.(USA,Canada)" \
+  -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+**Example (cURL - Delete all tasks with priority less than 3):**
+```bash
+curl -X DELETE "https://<your-deployment-url>/api/v1/data/tasks?priority=lt.3" \
+  -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+---
+
 ### Get Records
 
 Fetch multiple records from a table.
@@ -47,6 +75,7 @@ Fetch multiple records from a table.
 
 -   `select`: (Optional) A comma-separated list of columns to retrieve. Defaults to `*` (all columns).
 -   `limit`: (Optional) The maximum number of records to return. Defaults to `100`.
+-   See the **Filtering Records** section above for more advanced querying.
 
 **Example (cURL):**
 
@@ -162,7 +191,7 @@ Update one or more existing records in a table.
 
 **Query Parameters:**
 
-You must provide at least one query parameter to filter which record(s) to update. This uses Supabase's [PostgREST filtering](https://supabase.com/docs/reference/javascript/using-filters). For example, to update a user with `id = 1`, use the query `?id=eq.1`.
+You must provide at least one query parameter to filter which record(s) to update. See the **Filtering Records** section for details. For example, to update a user with `id = 1`, use the query `?id=eq.1`.
 
 **Request Body:**
 
@@ -229,7 +258,7 @@ Delete one or more existing records from a table.
 
 **Query Parameters:**
 
-You must provide at least one query parameter to filter which record(s) to delete. For example, to delete a user with `id = 1`, use the query `?id=eq.1`.
+You must provide at least one query parameter to filter which record(s) to delete. See the **Filtering Records** section for details. For example, to delete a user with `id = 1`, use the query `?id=eq.1`.
 
 **Example (cURL):**
 
