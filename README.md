@@ -151,3 +151,123 @@ def create_user(user_data):
 
 create_user({"name": "Jane Doe", "email": "jane.doe@example.com"})
 ```
+---
+
+### Update Record
+
+Update one or more existing records in a table.
+
+-   **Endpoint**: `PUT /api/v1/data/{table_name}`
+-   **Method**: `PUT`
+
+**Query Parameters:**
+
+You must provide at least one query parameter to filter which record(s) to update. This uses Supabase's [PostgREST filtering](https://supabase.com/docs/reference/javascript/using-filters). For example, to update a user with `id = 1`, use the query `?id=eq.1`.
+
+**Request Body:**
+
+A JSON object containing the columns and new values to update.
+
+**Example (cURL):**
+
+```bash
+curl -X PUT "https://<your-deployment-url>/api/v1/data/users?id=eq.1" \
+  -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Smith"}'
+```
+
+**Example (Node.js):**
+```javascript
+const fetch = require('node-fetch');
+
+const API_URL = 'https://<your-deployment-url>';
+const TOKEN = '<YOUR_JWT_TOKEN>';
+
+async function updateUser(userId, updates) {
+  const response = await fetch(`${API_URL}/api/v1/data/users?id=eq.${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(updates)
+  });
+  const data = await response.json();
+  console.log(data);
+}
+
+updateUser(1, { name: 'Johnathan Smith' });
+```
+
+**Example (Python):**
+```python
+import requests
+import json
+
+API_URL = "https://<your-deployment-url>"
+TOKEN = "<YOUR_JWT_TOKEN>"
+
+def update_user(user_id, updates):
+    headers = {
+        "Authorization": f"Bearer {TOKEN}",
+        "Content-Type": "application/json"
+    }
+    response = requests.put(f"{API_URL}/api/v1/data/users?id=eq.{user_id}", headers=headers, data=json.dumps(updates))
+    print(response.json())
+
+update_user(1, {"name": "Johnathan Smith"})
+```
+---
+
+### Delete Record
+
+Delete one or more existing records from a table.
+
+-   **Endpoint**: `DELETE /api/v1/data/{table_name}`
+-   **Method**: `DELETE`
+
+**Query Parameters:**
+
+You must provide at least one query parameter to filter which record(s) to delete. For example, to delete a user with `id = 1`, use the query `?id=eq.1`.
+
+**Example (cURL):**
+
+```bash
+curl -X DELETE "https://<your-deployment-url>/api/v1/data/users?id=eq.1" \
+  -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
+
+**Example (Node.js):**
+```javascript
+const fetch = require('node-fetch');
+
+const API_URL = 'https://<your-deployment-url>';
+const TOKEN = '<YOUR_JWT_TOKEN>';
+
+async function deleteUser(userId) {
+  const response = await fetch(`${API_URL}/api/v1/data/users?id=eq.${userId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${TOKEN}` }
+  });
+  const data = await response.json();
+  console.log('Deleted record:', data);
+}
+
+deleteUser(1);
+```
+
+**Example (Python):**
+```python
+import requests
+
+API_URL = "https://<your-deployment-url>"
+TOKEN = "<YOUR_JWT_TOKEN>"
+
+def delete_user(user_id):
+    headers = {"Authorization": f"Bearer {TOKEN}"}
+    response = requests.delete(f"{API_URL}/api/v1/data/users?id=eq.{user_id}", headers=headers)
+    print("Deleted record:", response.json())
+
+delete_user(1)
+```

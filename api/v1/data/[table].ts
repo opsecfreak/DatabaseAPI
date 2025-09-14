@@ -62,8 +62,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (postError) throw postError;
         return res.status(201).json(postData);
 
+      case 'PUT': {
+        const { table: _, ...filters } = req.query;
+        if (Object.keys(filters).length === 0) {
+          return res.status(400).json({ error: 'Update operation requires at least one filter query parameter (e.g., ?id=eq.1).' });
+        }
+        const { data: putData, error: putError } = await supabase.from(table).update(req.body).match(filters).select();
+        if (putError) throw putError;
+        return res.status(200).json(putData);
+      }
+      
+      case 'DELETE': {
+        const { table: _, ...filters } = req.query;
+        if (Object.keys(filters).length === 0) {
+          return res.status(400).json({ error: 'Delete operation requires at least one filter query parameter (e.g., ?id=eq.1).' });
+        }
+        const { data: deleteData, error: deleteError } = await supabase.from(table).delete().match(filters).select();
+        if (deleteError) throw deleteError;
+        return res.status(200).json(deleteData);
+      }
+
       default:
-        res.setHeader('Allow', ['GET', 'POST']);
+        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error: any) {

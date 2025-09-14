@@ -37,9 +37,12 @@ const CodeBlock: React.FC<{ code: string }> = ({ code }) => {
 
 export const ApiView: React.FC<ApiViewProps> = ({ token, connectionHost }) => {
   const apiUrl = `${window.location.origin}/api/v1/data/{table_name}`;
+  const apiUrlWithQuery = `${apiUrl}?column=eq.value`;
 
   const curlGet = `curl "${window.location.origin}/api/v1/data/users?limit=10" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN"`;
   const curlPost = `curl -X POST "${window.location.origin}/api/v1/data/users" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN" \\\n  -H "Content-Type: application/json" \\\n  -d '{"name": "Jane Doe", "email": "jane@example.com"}'`;
+  const curlPut = `curl -X PUT "${window.location.origin}/api/v1/data/users?id=eq.1" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN" \\\n  -H "Content-Type: application/json" \\\n  -d '{"name": "Jane Smith"}'`;
+  const curlDelete = `curl -X DELETE "${window.location.origin}/api/v1/data/users?id=eq.1" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN"`;
 
   return (
     <div className="w-full p-4 md:p-8 space-y-8 animate-fade-in">
@@ -69,6 +72,14 @@ export const ApiView: React.FC<ApiViewProps> = ({ token, connectionHost }) => {
                 <span className="inline-flex items-center rounded-md bg-blue-900 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-600/20">POST</span>
                 <span className="ml-2 font-mono text-supabase-gray-light">{apiUrl}</span>
             </div>
+            <div>
+                <span className="inline-flex items-center rounded-md bg-yellow-900 px-2 py-1 text-xs font-medium text-yellow-400 ring-1 ring-inset ring-yellow-600/20">PUT</span>
+                <span className="ml-2 font-mono text-supabase-gray-light">{apiUrlWithQuery}</span>
+            </div>
+            <div>
+                <span className="inline-flex items-center rounded-md bg-red-900 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-600/20">DELETE</span>
+                <span className="ml-2 font-mono text-supabase-gray-light">{apiUrlWithQuery}</span>
+            </div>
         </div>
       </div>
       
@@ -85,6 +96,14 @@ export const ApiView: React.FC<ApiViewProps> = ({ token, connectionHost }) => {
           <div>
             <h4 className="font-semibold text-gray-300 mb-2">cURL: Create Record</h4>
             <CodeBlock code={curlPost} />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-300 mb-2">cURL: Update Record</h4>
+            <CodeBlock code={curlPut} />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-300 mb-2">cURL: Delete Record</h4>
+            <CodeBlock code={curlDelete} />
           </div>
         </div>
       </div>

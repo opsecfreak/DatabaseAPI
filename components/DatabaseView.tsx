@@ -1,44 +1,79 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import type { UserRecord } from '../types';
-import { LoaderIcon, EmptyBoxIcon, ChevronLeftIcon, ChevronRightIcon } from './icons';
+import { LoaderIcon, EmptyBoxIcon, ChevronLeftIcon, ChevronRightIcon, AlertTriangleIcon } from './icons';
 
 interface DatabaseViewProps {
   data: UserRecord[];
-  onSeed: () => void;
+  onSeed: () => Promise<void>;
   isLoading: boolean;
+  error: string | null;
   connectionHost: string;
   currentPage: number;
   itemsPerPage: number;
   onPageChange: (newPage: number) => void;
 }
 
-const EmptyState: React.FC<{ onSeed: () => void; isLoading: boolean }> = ({ onSeed, isLoading }) => (
-  <div className="text-center p-12 bg-supabase-dark-2 rounded-lg border-2 border-dashed border-supabase-dark-3">
-    <EmptyBoxIcon className="mx-auto h-16 w-16 text-supabase-gray-light" />
-    <h3 className="mt-4 text-xl font-semibold text-gray-200">Database is Empty</h3>
-    <p className="mt-2 text-base text-supabase-gray-light">
-      There is no data to display. You can seed the database with sample data.
+const ErrorState: React.FC<{ message: string }> = ({ message }) => (
+  <div className="text-center p-12 bg-red-900/20 rounded-lg border-2 border-dashed border-red-700/50">
+    <AlertTriangleIcon className="mx-auto h-16 w-16 text-red-400" />
+    <h3 className="mt-4 text-xl font-semibold text-red-200">An Error Occurred</h3>
+    <p className="mt-2 text-base text-red-300">
+      {message}
     </p>
-    <div className="mt-6">
-      <button
-        type="button"
-        onClick={onSeed}
-        disabled={isLoading}
-        className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-supabase-green hover:bg-supabase-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-supabase-green focus:ring-offset-supabase-dark-2 disabled:bg-gray-600 transition-colors"
-      >
-        {isLoading ? (
-          <>
-            <LoaderIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-            Seeding...
-          </>
-        ) : (
-          'Seed with Sample Data'
-        )}
-      </button>
-    </div>
   </div>
 );
+
+const EmptyState: React.FC<{ onSeed: () => Promise<void> }> = ({ onSeed }) => {
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [seedError, setSeedError] = useState<string | null>(null);
+
+  const handleSeed = async () => {
+    setIsSeeding(true);
+    setSeedError(null);
+    try {
+      await onSeed();
+    } catch (err: any) {
+      const errorMessage = err.message || 'An unexpected error occurred while seeding.';
+      setSeedError(errorMessage);
+      console.error("Failed to seed data:", err);
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
+  return (
+    <div className="text-center p-12 bg-supabase-dark-2 rounded-lg border-2 border-dashed border-supabase-dark-3">
+      <EmptyBoxIcon className="mx-auto h-16 w-16 text-supabase-gray-light" />
+      <h3 className="mt-4 text-xl font-semibold text-gray-200">Database is Empty</h3>
+      <p className="mt-2 text-base text-supabase-gray-light">
+        There is no data to display. You can seed the database with sample data.
+      </p>
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={handleSeed}
+          disabled={isSeeding}
+          className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-supabase-green hover:bg-supabase-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-supabase-green focus:ring-offset-supabase-dark-2 disabled:bg-gray-600 transition-colors"
+        >
+          {isSeeding ? (
+            <>
+              <LoaderIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+              Seeding...
+            </>
+          ) : (
+            'Seed with Sample Data'
+          )}
+        </button>
+      </div>
+      {seedError && (
+        <div className="mt-4 text-sm text-red-400" role="alert">
+          <p><strong>Seeding Failed:</strong> {seedError}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 const PaginationControls: React.FC<{
   currentPage: number;
@@ -116,31 +151,46 @@ const DataTable: React.FC<{ data: UserRecord[] }> = ({ data }) => (
   </div>
 );
 
-export const DatabaseView: React.FC<DatabaseViewProps> = ({ data, onSeed, isLoading, connectionHost, currentPage, itemsPerPage, onPageChange }) => {
+export const DatabaseView: React.FC<DatabaseViewProps> = ({ data, onSeed, isLoading, error, connectionHost, currentPage, itemsPerPage, onPageChange }) => {
   const paginatedData = data.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center p-12 bg-supabase-dark-2 rounded-lg">
+          <LoaderIcon className="h-16 w-16 text-supabase-green animate-spin" />
+        </div>
+      );
+    }
+    if (error) {
+      return <ErrorState message={error} />;
+    }
+    if (data.length === 0) {
+      return <EmptyState onSeed={onSeed} />;
+    }
+    return (
+      <div className="overflow-hidden shadow-2xl ring-1 ring-supabase-dark-3 ring-opacity-5 rounded-lg">
+        <DataTable data={paginatedData} />
+        <PaginationControls
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          totalItems={data.length}
+          onPageChange={onPageChange}
+        />
+      </div>
+    );
+  };
+  
   return (
     <div className="w-full p-4 md:p-8 space-y-6">
       <div>
           <h2 className="text-3xl font-bold text-gray-100">Database Data</h2>
           <p className="text-supabase-gray-light">Viewing data from <span className="text-supabase-green font-mono">{connectionHost}</span></p>
       </div>
-      {data.length === 0 ? (
-        <EmptyState onSeed={onSeed} isLoading={isLoading} />
-      ) : (
-        <div className="overflow-hidden shadow-2xl ring-1 ring-supabase-dark-3 ring-opacity-5 rounded-lg">
-          <DataTable data={paginatedData} />
-          <PaginationControls
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            totalItems={data.length}
-            onPageChange={onPageChange}
-          />
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 };
