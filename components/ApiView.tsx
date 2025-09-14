@@ -70,22 +70,19 @@ export const ApiView: React.FC<ApiViewProps> = ({ token, connectionHost }) => {
 
       <div className="space-y-4">
         <h3 className="text-xl font-semibold text-gray-200">API Endpoints</h3>
-        <div className="space-y-2">
-            <div>
-                <span className="inline-flex items-center rounded-md bg-green-900 px-2 py-1 text-xs font-medium text-supabase-green ring-1 ring-inset ring-green-600/20">GET</span>
-                <span className="ml-2 font-mono text-supabase-gray-light">{apiUrl}</span>
-            </div>
-            <div>
-                <span className="inline-flex items-center rounded-md bg-blue-900 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-600/20">POST</span>
-                <span className="ml-2 font-mono text-supabase-gray-light">{apiUrl}</span>
-            </div>
-            <div>
-                <span className="inline-flex items-center rounded-md bg-yellow-900 px-2 py-1 text-xs font-medium text-yellow-400 ring-1 ring-inset ring-yellow-600/20">PUT</span>
-                <span className="ml-2 font-mono text-supabase-gray-light">{apiUrlWithQuery}</span>
-            </div>
-            <div>
-                <span className="inline-flex items-center rounded-md bg-red-900 px-2 py-1 text-xs font-medium text-red-400 ring-1 ring-inset ring-red-600/20">DELETE</span>
-                <span className="ml-2 font-mono text-supabase-gray-light">{apiUrlWithQuery}</span>
+        <div className="bg-supabase-dark-2 p-4 rounded-lg border border-supabase-dark-3">
+            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-3 items-center">
+                <span className="inline-flex items-center justify-center rounded-md bg-green-900 px-2.5 py-1 text-xs font-semibold text-supabase-green ring-1 ring-inset ring-green-600/20 w-[70px]">GET</span>
+                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrl}</code>
+
+                <span className="inline-flex items-center justify-center rounded-md bg-blue-900 px-2.5 py-1 text-xs font-semibold text-blue-400 ring-1 ring-inset ring-blue-600/20 w-[70px]">POST</span>
+                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrl}</code>
+
+                <span className="inline-flex items-center justify-center rounded-md bg-yellow-900 px-2.5 py-1 text-xs font-semibold text-yellow-400 ring-1 ring-inset ring-yellow-600/20 w-[70px]">PUT</span>
+                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrlWithQuery}</code>
+
+                <span className="inline-flex items-center justify-center rounded-md bg-red-900 px-2.5 py-1 text-xs font-semibold text-red-400 ring-1 ring-inset ring-red-600/20 w-[70px]">DELETE</span>
+                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrlWithQuery}</code>
             </div>
         </div>
       </div>
