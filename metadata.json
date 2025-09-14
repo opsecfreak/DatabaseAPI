@@ -1,0 +1,5 @@
+{
+  "name": "Supabase DB Connector UI",
+  "description": "A user interface to connect to a Supabase Postgres database, view its data, and seed it with initial data if empty. This is a UI mockup and does not perform real database connections from the browser for security reasons.",
+  "requestFramePermissions": []
+}
