@@ -46,6 +46,13 @@ export const ApiView: React.FC<ApiViewProps> = ({ token, connectionHost }) => {
   const apiUrl = `${window.location.origin}/api/v1/data/{table_name}`;
   const apiUrlWithQuery = `${apiUrl}?column=eq.value`;
 
+  const endpoints = [
+    { method: 'GET', path: apiUrl, style: 'bg-green-900 text-supabase-green ring-green-600/20' },
+    { method: 'POST', path: apiUrl, style: 'bg-blue-900 text-blue-400 ring-blue-600/20' },
+    { method: 'PUT', path: apiUrlWithQuery, style: 'bg-yellow-900 text-yellow-400 ring-yellow-600/20' },
+    { method: 'DELETE', path: apiUrlWithQuery, style: 'bg-red-900 text-red-400 ring-red-600/20' },
+  ];
+
   const curlGet = `curl "${window.location.origin}/api/v1/data/users?limit=10" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN"`;
   const curlPost = `curl -X POST "${window.location.origin}/api/v1/data/users" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN" \\\n  -H "Content-Type: application/json" \\\n  -d '{"name": "Jane Doe", "email": "jane@example.com"}'`;
   const curlPut = `curl -X PUT "${window.location.origin}/api/v1/data/users?id=eq.1" \\\n  -H "Authorization: Bearer YOUR_API_TOKEN" \\\n  -H "Content-Type: application/json" \\\n  -d '{"name": "Jane Smith"}'`;
@@ -71,19 +78,18 @@ export const ApiView: React.FC<ApiViewProps> = ({ token, connectionHost }) => {
       <div className="space-y-4">
         <h3 className="text-xl font-semibold text-gray-200">API Endpoints</h3>
         <div className="bg-supabase-dark-2 p-4 rounded-lg border border-supabase-dark-3">
-            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-3 items-center">
-                <span className="inline-flex items-center justify-center rounded-md bg-green-900 px-2.5 py-1 text-xs font-semibold text-supabase-green ring-1 ring-inset ring-green-600/20 w-[70px]">GET</span>
-                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrl}</code>
-
-                <span className="inline-flex items-center justify-center rounded-md bg-blue-900 px-2.5 py-1 text-xs font-semibold text-blue-400 ring-1 ring-inset ring-blue-600/20 w-[70px]">POST</span>
-                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrl}</code>
-
-                <span className="inline-flex items-center justify-center rounded-md bg-yellow-900 px-2.5 py-1 text-xs font-semibold text-yellow-400 ring-1 ring-inset ring-yellow-600/20 w-[70px]">PUT</span>
-                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrlWithQuery}</code>
-
-                <span className="inline-flex items-center justify-center rounded-md bg-red-900 px-2.5 py-1 text-xs font-semibold text-red-400 ring-1 ring-inset ring-red-600/20 w-[70px]">DELETE</span>
-                <code className="font-mono text-sm text-supabase-gray-light truncate">{apiUrlWithQuery}</code>
-            </div>
+          <div className="space-y-3">
+            {endpoints.map(({ method, path, style }) => (
+              <div key={method} className="flex items-center gap-x-4">
+                <span className={`flex-shrink-0 inline-flex items-center justify-center rounded-md w-20 px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${style}`}>
+                  {method}
+                </span>
+                <code className="font-mono text-sm text-supabase-gray-light truncate bg-supabase-dark rounded px-2 py-1 flex-grow">
+                  {path}
+                </code>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       
