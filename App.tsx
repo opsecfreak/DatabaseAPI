@@ -1,9 +1,7 @@
-
 import React, { useState, useCallback } from 'react';
-import type { ConnectionDetails, UserRecord } from './types';
-import { MOCK_USER_DATA } from './constants';
+import type { ConnectionDetails } from './types';
 import { ConnectionForm } from './components/ConnectionForm';
-import { DatabaseView } from './components/DatabaseView';
+import { ApiView } from './components/ApiView';
 import { SupabaseIcon } from './components/icons';
 
 const App: React.FC = () => {
@@ -11,43 +9,43 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [connectionDetails, setConnectionDetails] = useState<ConnectionDetails | null>(null);
-  const [dbData, setDbData] = useState<UserRecord[]>([]);
+  const [apiToken, setApiToken] = useState<string | null>(null);
 
-  const handleConnect = useCallback((details: ConnectionDetails) => {
+  const handleConnect = useCallback(async (details: ConnectionDetails) => {
     setIsLoading(true);
     setError(null);
     
-    // Simulate network delay
-    setTimeout(() => {
-      // Simulate a failed connection
-      if (details.apiKey.toLowerCase() === 'fail') {
-        setError('Connection failed. Please check your credentials.');
-        setIsLoading(false);
-        return;
+    try {
+      const response = await fetch('/api/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(details),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Connection failed.');
       }
-      
+
+      setApiToken(data.token);
       setConnectionDetails(details);
       setIsConnected(true);
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setIsLoading(false);
-      // Start with empty data to show the seeding option
-      setDbData([]); 
-    }, 2000);
+    }
   }, []);
 
   const handleDisconnect = useCallback(() => {
     setIsConnected(false);
     setConnectionDetails(null);
-    setDbData([]);
+    setApiToken(null);
     setError(null);
-  }, []);
-
-  const handleSeedData = useCallback(() => {
-    setIsLoading(true);
-    // Simulate seeding operation
-    setTimeout(() => {
-      setDbData(MOCK_USER_DATA);
-      setIsLoading(false);
-    }, 1500);
   }, []);
 
   return (
@@ -55,7 +53,7 @@ const App: React.FC = () => {
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <SupabaseIcon className="w-8 h-8 text-supabase-green" />
-          <h1 className="text-2xl font-bold text-gray-200">Database Manager</h1>
+          <h1 className="text-2xl font-bold text-gray-200">Database API Generator</h1>
         </div>
         {isConnected && connectionDetails && (
           <div className="flex items-center gap-4">
@@ -70,21 +68,19 @@ const App: React.FC = () => {
         )}
       </header>
 
-      <main className="w-full max-w-6xl flex-grow flex items-center justify-center">
-        {!isConnected ? (
+      <main className="w-full max-w-5xl flex-grow flex items-center justify-center">
+        {!isConnected || !apiToken ? (
           <ConnectionForm onConnect={handleConnect} isLoading={isLoading} error={error} />
         ) : (
-          <DatabaseView
-            data={dbData}
-            onSeed={handleSeedData}
-            isLoading={isLoading}
-            connectionHost={connectionDetails ? new URL(connectionDetails.url).hostname : ''}
+          <ApiView 
+            token={apiToken}
+            connectionHost={new URL(connectionDetails!.url).hostname}
           />
         )}
       </main>
       
       <footer className="w-full text-center p-4 text-supabase-gray-light text-sm">
-        <p>This is a UI mockup. No real database connection is made from the browser.</p>
+        <p>Your credentials are used to generate a temporary API token and are not stored.</p>
       </footer>
     </div>
   );
